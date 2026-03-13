@@ -1,0 +1,35 @@
+Application Data/
+Cookies/
+Documents/My Music/
+Documents/My Pictures/
+Documents/My Videos/
+Local Settings/
+My Documents/
+NetHood/
+PrintHood/
+Recent/
+SendTo/
+Start Menu/
+Templates/
+.gemini/
+.gitconfig
+AppData/
+Contacts/
+Downloads/
+Favorites/
+Links/
+Music/
+NTUSER.DAT
+NTUSER.DAT{994c7fcc-1d69-11f1-b0d3-b07d64b0ac11}.TM.blf
+NTUSER.DAT{994c7fcc-1d69-11f1-b0d3-b07d64b0ac11}.TMContainer00000000000000000001.regtrans-ms
+NTUSER.DAT{994c7fcc-1d69-11f1-b0d3-b07d64b0ac11}.TMContainer00000000000000000002.regtrans-ms
+Saved Games/
+Searches/
+Videos/
+ntuser.dat.LOG1
+ntuser.dat.LOG2
+ntuser.ini
+OneDrive/*
+!OneDrive/Desktop/
+OneDrive/Desktop/*
+!OneDrive/Desktop/wolf solian/
