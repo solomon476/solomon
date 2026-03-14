@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Your SecureAuth profile dashboard.">
+    <title>Dashboard – SecureAuth</title>
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+
+    <!-- ── Navigation Bar ─────────────────────────────────────────────── -->
+    <nav class="dashboard-nav">
+        <span class="brand">🔐 SecureAuth</span>
+        <div class="nav-right">
+            <div class="user-badge" id="user_badge">
+                Logged in as <strong id="nav_username">—</strong>
+            </div>
+            <button class="btn btn-secondary" id="logout_btn">🚪 Logout</button>
+        </div>
+    </nav>
+
+    <!-- ── Main Content ───────────────────────────────────────────────── -->
+    <main class="dashboard-main">
+
+        <div class="dashboard-hero">
+            <h1>Hello, <span id="hero_username">—</span>! 👋</h1>
+            <p>Welcome to your secure dashboard. Your account is protected and active.</p>
+        </div>
+
+        <div class="dashboard-grid">
+
+            <div class="info-card">
+                <div class="card-icon">👤</div>
+                <h3>Username</h3>
+                <div class="card-value gradient" id="card_username">—</div>
+            </div>
+
+            <div class="info-card">
+                <div class="card-icon">📧</div>
+                <h3>Email Address</h3>
+                <div class="card-value" id="card_email">—</div>
+            </div>
+
+            <div class="info-card">
+                <div class="card-icon">📅</div>
+                <h3>Member Since</h3>
+                <div class="card-value" id="card_created">—</div>
+            </div>
+
+            <div class="info-card">
+                <div class="card-icon">🏅</div>
+                <h3>Days as Member</h3>
+                <div class="card-value gradient" id="card_days">—</div>
+            </div>
+
+            <div class="info-card">
+                <div class="card-icon">🆔</div>
+                <h3>Account ID</h3>
+                <div class="card-value" id="card_id">—</div>
+            </div>
+
+            <div class="info-card">
+                <div class="card-icon">🔒</div>
+                <h3>Password</h3>
+                <div class="card-value" style="margin-bottom:0.75rem;">••••••••••••</div>
+                <a href="forgot_password.html" class="btn btn-secondary" id="change_pw_btn"
+                    style="width:100%;font-size:0.85rem;padding:0.55rem 1rem;">
+                    🔄 Reset Password
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="../assets/script.js"></script>
+    <script>
+        // Auth gate: redirect to login if no session
+        const session = JSON.parse(localStorage.getItem('sa_session') || 'null');
+        if (!session) {
+            localStorage.setItem('sa_flash', 'Please log in to view your profile.');
+            window.location.href = 'login.html';
+        } else {
+            // Populate UI with session data
+            document.getElementById('nav_username').textContent = session.username;
+            document.getElementById('hero_username').textContent = session.username;
+            document.getElementById('card_username').textContent = session.username;
+            document.getElementById('card_email').textContent = session.email;
+            document.getElementById('card_id').textContent = '#' + (session.user_id || 1);
+
+            // Format date
+            const created = new Date(session.created_at || Date.now());
+            const options = {
+                year: 'numeric', month: 'long', day: 'numeric',
+                hour: 'numeric', minute: '2-digit'
+            };
+            document.getElementById('card_created').textContent = created.toLocaleString('en-US', options);
+
+            // Days as member
+            const days = Math.floor((Date.now() - created.getTime()) / 86400000);
+            document.getElementById('card_days').textContent = days + (days === 1 ? ' day' : ' days');
+        }
+
+        // Logout
+        document.getElementById('logout_btn').addEventListener('click', function () {
+            if (confirm('Are you sure you want to log out?')) {
+                localStorage.removeItem('sa_session');
+                localStorage.setItem('sa_flash', 'You have been logged out successfully.');
+                window.location.href = 'login.html';
+            }
+        });
+    </script>
+</body>
+
+</html>

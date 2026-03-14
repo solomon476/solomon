@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Log in to your SecureAuth account.">
+    <title>Log In – SecureAuth</title>
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-center">
+        <div class="auth-card">
+
+            <!-- Logo -->
+            <div class="logo">
+                <div class="logo-icon">🔑</div>
+                <h1>Welcome Back</h1>
+                <p class="subtitle">Sign in to continue to SecureAuth</p>
+            </div>
+
+            <!-- Flash messages injected by JS -->
+            <div id="flash_success" class="alert alert-success" role="alert" style="display:none;"></div>
+            <div id="flash_error" class="alert alert-error" role="alert" style="display:none;"></div>
+
+            <!-- Login Form -->
+            <form id="login_form" novalidate>
+
+                <!-- Username or Email -->
+                <div class="form-group">
+                    <label for="identifier">Username or Email</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="identifier" name="identifier" placeholder="john_doe or you@example.com"
+                            autocomplete="username" required>
+                    </div>
+                    <span class="field-error" id="identifier_error"></span>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="password" name="password" placeholder="Your password"
+                            autocomplete="current-password" required>
+                        <button type="button" class="toggle-password" data-target="password"
+                            aria-label="Toggle password visibility">👁️</button>
+                    </div>
+                    <span class="field-error" id="password_error"></span>
+                </div>
+
+                <!-- Forgot password -->
+                <div style="text-align:right; margin-top:-0.5rem; margin-bottom:1rem;">
+                    <a href="forgot_password.html" style="font-size:0.85rem;">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="login_submit">
+                    🔑 Log In
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Don't have an account? <a href="register.html">Register</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/script.js"></script>
+    <script>
+        // Show flash messages from localStorage (set by register or logout)
+        const flash = localStorage.getItem('sa_flash');
+        if (flash) {
+            const el = document.getElementById('flash_success');
+            el.textContent = '✅ ' + flash;
+            el.style.display = 'flex';
+            localStorage.removeItem('sa_flash');
+        }
+
+        // Brute-force demo state
+        const MAX_ATTEMPTS = 5;
+        const LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes
+
+        document.getElementById('login_form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const identifier = document.getElementById('identifier').value.trim();
+            const password = document.getElementById('password').value;
+            const errEl = document.getElementById('flash_error');
+            errEl.style.display = 'none';
+
+            if (!identifier || !password) {
+                errEl.textContent = '⚠️ Please fill in all fields.';
+                errEl.style.display = 'flex';
+                return;
+            }
+
+            // Check lockout
+            const lockData = JSON.parse(localStorage.getItem('sa_lockout_' + identifier) || '{}');
+            if (lockData.until && Date.now() < lockData.until) {
+                const remaining = Math.ceil((lockData.until - Date.now()) / 60000);
+                errEl.textContent = `⚠️ Account locked. Try again in ${remaining} minute(s).`;
+                errEl.style.display = 'flex';
+                return;
+            }
+
+            // Find user
+            const users = JSON.parse(localStorage.getItem('sa_users') || '[]');
+            const user = users.find(u => u.username === identifier || u.email === identifier);
+
+            if (user && user.password === password) {
+                // SUCCESS - reset lockout, save session, redirect
+                localStorage.removeItem('sa_lockout_' + identifier);
+                localStorage.setItem('sa_session', JSON.stringify({
+                    user_id: user.id,
+                    username: user.username,
+                    email: user.email,
+                    created_at: user.created_at
+                }));
+                window.location.href = 'profile.html';
+            } else {
+                // FAILURE - increment attempts
+                const attempts = (lockData.attempts || 0) + 1;
+                const remaining = MAX_ATTEMPTS - attempts;
+                if (attempts >= MAX_ATTEMPTS) {
+                    localStorage.setItem('sa_lockout_' + identifier, JSON.stringify({
+                        attempts, until: Date.now() + LOCKOUT_MS
+                    }));
+                    errEl.textContent = `⚠️ Too many failed attempts. Account locked for 15 minutes.`;
+                } else {
+                    localStorage.setItem('sa_lockout_' + identifier, JSON.stringify({ attempts }));
+                    errEl.textContent = `⚠️ Invalid username or password. ${remaining} attempt(s) remaining before lockout.`;
+                }
+                errEl.style.display = 'flex';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create a new SecureAuth account.">
+    <title>Register – SecureAuth</title>
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+
+<body>
+    <div class="page-center">
+        <div class="auth-card">
+
+            <!-- Logo -->
+            <div class="logo">
+                <div class="logo-icon">🔐</div>
+                <h1>Create Account</h1>
+                <p class="subtitle">Join SecureAuth — it's free</p>
+            </div>
+
+            <!-- Demo success message (hidden by default, shown via JS below) -->
+            <div class="alert alert-success" id="success_alert" role="alert" style="display:none;">
+                ✅ Account created successfully! <a href="login.html">Log In</a>
+            </div>
+
+            <!-- Demo error container -->
+            <div class="alert alert-error" id="server_error_alert" role="alert" style="display:none;">
+                <span>⚠️</span> <span id="server_error_text"></span>
+            </div>
+
+            <!-- Registration Form -->
+            <form id="register_form" novalidate>
+
+                <!-- Username -->
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input type="text" id="username" name="username" placeholder="e.g. john_doe"
+                            autocomplete="username" maxlength="50" required>
+                    </div>
+                    <span class="field-error" id="username_error"></span>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">📧</span>
+                        <input type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email"
+                            required>
+                    </div>
+                    <span class="field-error" id="email_error"></span>
+                </div>
+
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="password" name="password" placeholder="At least 8 characters"
+                            autocomplete="new-password" required>
+                        <button type="button" class="toggle-password" data-target="password"
+                            aria-label="Toggle password visibility">👁️</button>
+                    </div>
+                    <span class="field-error" id="password_error"></span>
+                    <!-- Strength Meter -->
+                    <div class="strength-meter">
+                        <div class="strength-meter-fill" id="strength_fill"></div>
+                    </div>
+                    <span class="strength-label" id="strength_label"></span>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔒</span>
+                        <input type="password" id="confirm_password" name="confirm_password"
+                            placeholder="Repeat your password" autocomplete="new-password" required>
+                        <button type="button" class="toggle-password" data-target="confirm_password"
+                            aria-label="Toggle confirm">👁️</button>
+                    </div>
+                    <span class="field-error" id="confirm_password_error"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="register_submit">
+                    🚀 Create Account
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="login.html">Log In</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/script.js"></script>
+    <script>
+        // Frontend-only demo: simulate successful registration on valid submit
+        document.getElementById('register_form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            // If form passed JS validation (no is-invalid fields), show success
+            const hasErrors = document.querySelectorAll('.is-invalid').length > 0;
+            if (!hasErrors && document.getElementById('username').value.trim().length >= 3) {
+                // Simulate saving to localStorage for demo login
+                const users = JSON.parse(localStorage.getItem('sa_users') || '[]');
+                const username = document.getElementById('username').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const password = document.getElementById('password').value;
+
+                // Check duplicate
+                if (users.find(u => u.username === username || u.email === email)) {
+                    const errEl = document.getElementById('server_error_alert');
+                    document.getElementById('server_error_text').textContent = 'That username or email is already registered.';
+                    errEl.style.display = 'flex';
+                    return;
+                }
+
+                users.push({ username, email, password, created_at: new Date().toISOString(), id: users.length + 1 });
+                localStorage.setItem('sa_users', JSON.stringify(users));
+
+                document.getElementById('success_alert').style.display = 'flex';
+                this.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>
